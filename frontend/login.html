@@ -180,16 +180,12 @@
     </style>
 </head>
 
-
 <body ng-controller="LoginController">
 
-
-<!-- LOGIN AREA -->
 <div class="login-wrapper">
 
     <div class="login-container">
 
-        <!-- BRAND -->
         <div class="login-brand">
 
             <div class="login-brand-icon">
@@ -204,8 +200,6 @@
 
         </div>
 
-
-        <!-- LOGIN CARD -->
         <div class="login-card">
 
             <div class="login-card-title">
@@ -216,8 +210,6 @@
                 Sign in to access your administration dashboard.
             </div>
 
-
-            <!-- ERROR -->
             <div
                 class="alert alert-danger login-error"
                 ng-if="errorMessage"
@@ -226,11 +218,8 @@
                 {{ errorMessage }}
             </div>
 
-
-            <!-- LOGIN FORM -->
             <form ng-submit="login()">
 
-                <!-- USERNAME -->
                 <div class="mb-3">
 
                     <label class="form-label">
@@ -254,8 +243,6 @@
 
                 </div>
 
-
-                <!-- PASSWORD -->
                 <div class="mb-3">
 
                     <label class="form-label">
@@ -291,8 +278,6 @@
 
                 </div>
 
-
-                <!-- LOGIN BUTTON -->
                 <button
                     type="submit"
                     class="btn btn-primary login-btn"
@@ -318,8 +303,6 @@
 
             </form>
 
-
-            <!-- SECURITY -->
             <div class="login-security">
 
                 <i class="bi bi-shield-check"></i>
@@ -328,8 +311,6 @@
 
             </div>
 
-
-            <!-- DEMO LOGIN -->
             <div class="demo-box">
 
                 <i class="bi bi-info-circle me-1"></i>
@@ -345,8 +326,6 @@
 
 </div>
 
-
-<!-- FOOTER -->
 <footer class="edumate-footer mt-0">
 
     <div class="container-fluid px-4">
@@ -369,7 +348,6 @@
 
             </div>
 
-
             <div class="col-md-6 text-center text-md-end">
 
                 <div class="footer-copyright">
@@ -388,15 +366,11 @@
 
 </footer>
 
-
-<!-- ANGULARJS -->
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
-
 
 <script>
 
 const loginApp = angular.module("loginApp", []);
-
 
 loginApp.controller("LoginController", function($scope, $http) {
 
@@ -407,15 +381,13 @@ loginApp.controller("LoginController", function($scope, $http) {
     $scope.loading = false;
     $scope.errorMessage = "";
 
-
     $scope.login = function() {
 
         $scope.errorMessage = "";
         $scope.loading = true;
 
-
         $http.post(
-            "http://localhost:5000/api/auth/login",
+            "/api/auth/login",
             {
                 username: $scope.username,
                 password: $scope.password
@@ -432,7 +404,6 @@ loginApp.controller("LoginController", function($scope, $http) {
                 "studentHubUser",
                 JSON.stringify(response.data.user)
             );
-
 
             window.location.href = "index.html";
 

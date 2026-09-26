@@ -2,7 +2,7 @@ const app = angular.module("studentApp", []);
 
 app.controller("StudentController", function ($scope, $http, $timeout) {
 
-    const API = "http://localhost:5000/api/students";
+    const API = "/api/students";
 
     // =========================
     // LOGIN / USER
@@ -263,11 +263,9 @@ app.controller("StudentController", function ($scope, $http, $timeout) {
 
     $scope.saveStudent = function () {
 
-        // Get the Angular form
         const form =
             $scope.studentForm;
 
-        // Check validation
         if (form && form.$invalid) {
 
             form.$setSubmitted();
@@ -284,11 +282,9 @@ app.controller("StudentController", function ($scope, $http, $timeout) {
         const payload =
             angular.copy($scope.formData);
 
-        // Make sure year is a number
         payload.year =
             Number(payload.year);
 
-        // Convert DOB to ISO string
         if (payload.dateOfBirth) {
 
             const dob =
