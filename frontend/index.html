@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="studentApp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EduMate - Dashboard</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body ng-controller="StudentController">
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+
+        <div class="container-fluid px-4">
+
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>
+                EduMate
+            </a>
+
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+
+                <ul class="navbar-nav me-auto ms-lg-4">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">
+                            <i class="bi bi-grid-1x2-fill me-1"></i>
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="student-records.html">
+                            <i class="bi bi-people me-1"></i>
+                            Student Records
+                        </a>
+                    </li>
+
+                    <li
+                        class="nav-item"
+                        ng-if="loggedUser.role === 'admin'"
+                    >
+                        <a
+                            class="nav-link"
+                            href="staff-management.html"
+                        >
+                            <i class="bi bi-person-badge me-1"></i>
+                            Staff Management
+                        </a>
+                    </li>
+
+                </ul>
+
+
+                <!-- PROFILE -->
+
+                <div class="dropdown">
+
+                    <button
+                        class="btn btn-outline-light dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                    >
+
+                        <i class="bi bi-person-circle me-1"></i>
+
+                        {{ loggedUser.name || loggedUser.username }}
+
+                    </button>
+
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+
+                        <li>
+
+                            <span class="dropdown-item-text">
+
+                                <strong>
+                                    {{ loggedUser.name }}
+                                </strong>
+
+                                <br>
+
+                                <small class="text-muted">
+                                    {{ loggedUser.role | uppercase }}
+                                </small>
+
+                            </span>
+
+                        </li>
+
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+
+                        <li>
+
+                            <button
+                                class="dropdown-item text-danger"
+                                ng-click="logout()"
+                            >
+
+                                <i class="bi bi-box-arrow-right me-2"></i>
+
+                                Logout
+
+                            </button>
+
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <main>
+
+        <div class="container-fluid px-4 py-4">
+
+
+            <!-- WELCOME -->
+
+            <section class="dashboard-hero">
+
+                <div class="hero-content">
+
+                    <div class="hero-label">
+
+                        <i class="bi bi-stars me-2"></i>
+
+                        EDUMATE ADMINISTRATION
+
+                    </div>
+
+
+                    <h1>
+                        Welcome back,
+                        {{ loggedUser.name || loggedUser.username }}!
+                    </h1>
+
+
+                    <p>
+                        Manage your student administration from one
+                        simple and organized workspace.
+                    </p>
+
+
+                    <div class="hero-actions">
+
+                        <a
+                            href="student-records.html"
+                            class="btn btn-light btn-lg"
+                        >
+
+                            <i class="bi bi-people-fill me-2"></i>
+
+                            Open Student Records
+
+                        </a>
+
+
+                        <button
+                            class="btn btn-outline-light btn-lg"
+                            data-bs-toggle="modal"
+                            data-bs-target="#studentModal"
+                            ng-click="prepareAdd()"
+                        >
+
+                            <i class="bi bi-person-plus-fill me-2"></i>
+
+                            Register Student
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hero-decoration">
+
+                    <div class="hero-circle"></div>
+
+                    <div class="hero-circle"></div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================= STATISTICS ================= -->
+
+            <section class="mb-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <div>
+
+                        <h4 class="fw-bold mb-1">
+                            Overview
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            Current student management statistics
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row g-3">
+
+
+                    <!-- TOTAL -->
+
+                    <div class="col-md-6 col-xl-3">
+
+                        <div class="stat-card">
+
+                            <div class="d-flex justify-content-between">
+
+                                <div class="stat-icon">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+
+                                <span class="text-muted small">
+                                    TOTAL
+                                </span>
+
+                            </div>
+
+
+                            <div class="stat-number">
+                                {{ students.length }}
+                            </div>
+
+                            <div class="stat-title">
+                                Total Students
+                            </div>
+
+                            <div class="stat-description">
+                                All registered student profiles
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTIVE -->
+
+                    <div class="col-md-6 col-xl-3">
+
+                        <div class="stat-card">
+
+                            <div class="d-flex justify-content-between">
+
+                                <div class="stat-icon">
+                                    <i class="bi bi-person-check-fill"></i>
+                                </div>
+
+                                <span class="text-success small">
+                                    ACTIVE
+                                </span>
+
+                            </div>
+
+
+                            <div class="stat-number">
+                                {{ activeStudentsCount() }}
+                            </div>
+
+                            <div class="stat-title">
+                                Active Students
+                            </div>
+
+                            <div class="stat-description">
+                                Currently active profiles
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DEPARTMENTS -->
+
+                    <div class="col-md-6 col-xl-3">
+
+                        <div class="stat-card">
+
+                            <div class="d-flex justify-content-between">
+
+                                <div class="stat-icon">
+                                    <i class="bi bi-building"></i>
+                                </div>
+
+                                <span class="text-muted small">
+                                    ACADEMIC
+                                </span>
+
+                            </div>
+
+
+                            <div class="stat-number">
+                                {{ departments.length }}
+                            </div>
+
+                            <div class="stat-title">
+                                Departments
+                            </div>
+
+                            <div class="stat-description">
+                                Departments represented
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TODAY -->
+
+                    <div class="col-md-6 col-xl-3">
+
+                        <div class="stat-card">
+
+                            <div class="d-flex justify-content-between">
+
+                                <div class="stat-icon">
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                </div>
+
+                                <span class="text-muted small">
+                                    TODAY
+                                </span>
+
+                            </div>
+
+
+                            <div class="stat-number">
+                                {{ todayRegistrations() }}
+                            </div>
+
+                            <div class="stat-title">
+                                Registered Today
+                            </div>
+
+                            <div class="stat-description">
+                                New registrations today
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================= DASHBOARD WORKSPACE ================= -->
+
+            <div class="row g-4">
+
+
+                <!-- ACTIVITY -->
+
+                <div class="col-xl-8">
+
+                    <div class="modern-card">
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+
+                            <div>
+
+                                <h5 class="fw-bold mb-1">
+                                    <i class="bi bi-activity me-2"></i>
+                                    Registration Activity
+                                </h5>
+
+                                <p class="text-muted small mb-0">
+                                    Student registrations by day
+                                </p>
+
+                            </div>
+
+                            <span class="badge text-bg-light">
+                                Last 7 Days
+                            </span>
+
+                        </div>
+
+
+                        <!-- ACTIVITY BARS -->
+
+                        <div class="activity-list">
+
+                            <div
+                                class="activity-row"
+                                ng-repeat="item in registrationActivity"
+                            >
+
+                                <div class="activity-date">
+                                    {{ item.date }}
+                                </div>
+
+
+                                <div class="activity-track">
+
+                                    <div
+                                        class="activity-bar"
+                                        ng-style="{
+                                            width: (item.count * 15 + 5) + '%'
+                                        }"
+                                    ></div>
+
+                                </div>
+
+
+                                <div class="activity-count">
+                                    {{ item.count }}
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                ng-if="!registrationActivity || registrationActivity.length === 0"
+                                class="text-center text-muted py-4"
+                            >
+
+                                <i class="bi bi-bar-chart fs-2 d-block mb-2"></i>
+
+                                No registration activity available yet.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- QUICK ACTIONS -->
+
+                <div class="col-xl-4">
+
+                    <div class="modern-card">
+
+                        <h5 class="fw-bold mb-1">
+                            <i class="bi bi-lightning-charge-fill me-2"></i>
+                            Quick Actions
+                        </h5>
+
+                        <p class="text-muted small mb-4">
+                            Frequently used management tools
+                        </p>
+
+
+                        <!-- STUDENT RECORDS -->
+
+                        <a
+                            href="student-records.html"
+                            class="dashboard-action"
+                        >
+
+                            <div class="action-icon">
+                                <i class="bi bi-database"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Student Records
+                                </strong>
+
+                                <small>
+                                    Browse and manage students
+                                </small>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right ms-auto"></i>
+
+                        </a>
+
+
+                        <!-- REGISTER -->
+
+                        <button
+                            class="dashboard-action w-100 text-start"
+                            data-bs-toggle="modal"
+                            data-bs-target="#studentModal"
+                            ng-click="prepareAdd()"
+                        >
+
+                            <div class="action-icon">
+                                <i class="bi bi-person-plus"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Register Student
+                                </strong>
+
+                                <small>
+                                    Add a new student
+                                </small>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right ms-auto"></i>
+
+                        </button>
+
+
+                        <!-- STAFF -->
+
+                        <a
+                            ng-if="loggedUser.role === 'admin'"
+                            href="staff-management.html"
+                            class="dashboard-action"
+                        >
+
+                            <div class="action-icon">
+                                <i class="bi bi-person-badge"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Staff Management
+                                </strong>
+
+                                <small>
+                                    Manage staff accounts
+                                </small>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right ms-auto"></i>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= SYSTEM INFORMATION ================= -->
+
+            <section class="mt-4">
+
+                <div class="modern-card">
+
+                    <div class="row g-4 align-items-center">
+
+
+                        <div class="col-lg-8">
+
+                            <div class="d-flex gap-3 align-items-start">
+
+                                <div class="quick-icon">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+
+                                <div>
+
+                                    <h5 class="fw-bold">
+                                        Secure Student Administration
+                                    </h5>
+
+                                    <p class="text-muted mb-0">
+                                        EduMate keeps student management
+                                        organized with authenticated access,
+                                        role-based permissions and MongoDB
+                                        data storage.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-4">
+
+                            <div class="dashboard-info-grid">
+
+                                <div>
+                                    <small>Logged in as</small>
+                                    <strong>
+                                        {{ loggedUser.role | uppercase }}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <small>System</small>
+                                    <strong>
+                                        EduMate
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- ================= ADD STUDENT MODAL ================= -->
+
+    <div
+        class="modal fade"
+        id="studentModal"
+        tabindex="-1"
+    >
+
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title">
+
+                            <i class="bi bi-person-plus-fill me-2"></i>
+
+                            Register New Student
+
+                        </h5>
+
+                        <small class="text-muted">
+                            Enter student information
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
+
+                </div>
+
+
+                <form
+                    name="studentForm"
+                    ng-submit="saveStudent()"
+                    novalidate
+                >
+
+                    <div class="modal-body">
+
+                        <div class="row g-3">
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Student ID *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    ng-model="formData.studentId"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Full Name *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    ng-model="formData.name"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Email *
+                                </label>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    ng-model="formData.email"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Phone *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    ng-model="formData.phone"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Department *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    ng-model="formData.department"
+                                    placeholder="Example: Computer Science"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Year *
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    ng-model="formData.year"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Year
+                                    </option>
+
+                                    <option value="1">
+                                        1st Year
+                                    </option>
+
+                                    <option value="2">
+                                        2nd Year
+                                    </option>
+
+                                    <option value="3">
+                                        3rd Year
+                                    </option>
+
+                                    <option value="4">
+                                        4th Year
+                                    </option>
+
+                                    <option value="5">
+                                        5th Year
+                                    </option>
+
+                                    <option value="6">
+                                        6th Year
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Gender
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    ng-model="formData.gender"
+                                >
+
+                                    <option value="">
+                                        Select Gender
+                                    </option>
+
+                                    <option value="Male">
+                                        Male
+                                    </option>
+
+                                    <option value="Female">
+                                        Female
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Date of Birth
+                                </label>
+
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    ng-model="formData.dateOfBirth"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Status
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    ng-model="formData.status"
+                                >
+
+                                    <option value="Active">
+                                        Active
+                                    </option>
+
+                                    <option value="Inactive">
+                                        Inactive
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <label class="form-label">
+                                    Address
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    rows="3"
+                                    ng-model="formData.address"
+                                    placeholder="Enter address"
+                                ></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            ng-disabled="studentForm.$invalid || saving"
+                        >
+
+                            <span
+                                ng-if="saving"
+                                class="spinner-border spinner-border-sm me-1"
+                            ></span>
+
+                            <i
+                                ng-if="!saving"
+                                class="bi bi-check-lg me-1"
+                            ></i>
+
+                            {{ saving ? 'Saving...' : 'Save Student' }}
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= TOAST ================= -->
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+
+        <div
+            id="toastMessage"
+            class="toast"
+            role="alert"
+        >
+
+            <div class="toast-header">
+
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+
+                <strong class="me-auto">
+                    EduMate
+                </strong>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="toast"
+                ></button>
+
+            </div>
+
+            <div class="toast-body">
+                {{ toastMessage }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= SCRIPTS ================= -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

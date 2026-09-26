@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="studentApp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EduMate - Student Records</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body ng-controller="StudentController">
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+
+        <div class="container-fluid px-4">
+
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>
+                EduMate
+            </a>
+
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+
+                <ul class="navbar-nav me-auto ms-lg-4">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="bi bi-grid me-1"></i>
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a
+                            class="nav-link active"
+                            href="student-records.html"
+                        >
+                            <i class="bi bi-people me-1"></i>
+                            Student Records
+                        </a>
+                    </li>
+
+                    <li
+                        class="nav-item"
+                        ng-if="loggedUser.role === 'admin'"
+                    >
+                        <a
+                            class="nav-link"
+                            href="staff-management.html"
+                        >
+                            <i class="bi bi-person-badge me-1"></i>
+                            Staff Management
+                        </a>
+                    </li>
+
+                </ul>
+
+
+                <!-- PROFILE -->
+
+                <div class="dropdown">
+
+                    <button
+                        class="btn btn-outline-light dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                    >
+                        <i class="bi bi-person-circle me-1"></i>
+
+                        {{ loggedUser.name || loggedUser.username }}
+
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+
+                        <li>
+
+                            <span class="dropdown-item-text">
+
+                                <strong>
+                                    {{ loggedUser.name }}
+                                </strong>
+
+                                <br>
+
+                                <small class="text-muted">
+                                    {{ loggedUser.role | uppercase }}
+                                </small>
+
+                            </span>
+
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+
+                            <button
+                                class="dropdown-item text-danger"
+                                ng-click="logout()"
+                            >
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Logout
+                            </button>
+
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="records-page">
+
+        <div class="container-fluid px-4 py-4">
+
+            <!-- PAGE HEADER -->
+
+            <div class="records-header mb-4">
+
+                <div>
+
+                    <div class="records-label">
+
+                        <i class="bi bi-database me-2"></i>
+                        STUDENT DATABASE
+
+                    </div>
+
+                    <h1 class="records-title">
+                        Student Records
+                    </h1>
+
+                    <p class="records-subtitle">
+                        Search, manage and maintain student information.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary btn-lg"
+                    data-bs-toggle="modal"
+                    data-bs-target="#studentModal"
+                    ng-click="prepareAdd()"
+                >
+                    <i class="bi bi-person-plus-fill me-2"></i>
+                    Add Student
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 SEARCH + FILTER
+            ================================================== -->
+
+            <div class="records-filter-card mb-4">
+
+                <div class="row g-3 align-items-end">
+
+                    <!-- SEARCH -->
+
+                    <div class="col-lg-5">
+
+                        <label class="form-label fw-semibold">
+                            Search Students
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Search by name, ID, email or phone..."
+                                ng-model="searchText"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DEPARTMENT -->
+
+                    <div class="col-md-4 col-lg-2">
+
+                        <label class="form-label fw-semibold">
+                            Department
+                        </label>
+
+                        <select
+                            class="form-select"
+                            ng-model="selectedDepartment"
+                        >
+
+                            <option value="">
+                                All Departments
+                            </option>
+
+                            <option
+                                ng-repeat="department in departments"
+                                value="{{ department }}"
+                            >
+                                {{ department }}
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- YEAR -->
+
+                    <div class="col-md-4 col-lg-2">
+
+                        <label class="form-label fw-semibold">
+                            Year
+                        </label>
+
+                        <select
+                            class="form-select"
+                            ng-model="selectedYear"
+                        >
+
+                            <option value="">
+                                All Years
+                            </option>
+
+                            <option value="1">
+                                1st Year
+                            </option>
+
+                            <option value="2">
+                                2nd Year
+                            </option>
+
+                            <option value="3">
+                                3rd Year
+                            </option>
+
+                            <option value="4">
+                                4th Year
+                            </option>
+
+                            <option value="5">
+                                5th Year
+                            </option>
+
+                            <option value="6">
+                                6th Year
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="col-md-4 col-lg-2">
+
+                        <label class="form-label fw-semibold">
+                            Status
+                        </label>
+
+                        <select
+                            class="form-select"
+                            ng-model="selectedStatus"
+                        >
+
+                            <option value="">
+                                All Status
+                            </option>
+
+                            <option value="Active">
+                                Active
+                            </option>
+
+                            <option value="Inactive">
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- RESET -->
+
+                    <div class="col-lg-1">
+
+                        <button
+                            class="btn btn-light border w-100"
+                            ng-click="resetFilters()"
+                            title="Reset filters"
+                        >
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RECORDS TABLE
+            ================================================== -->
+
+            <div class="records-table-card">
+
+                <div class="records-table-header">
+
+                    <div>
+
+                        <h5 class="mb-1">
+
+                            <i class="bi bi-table me-2"></i>
+                            Registered Students
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            {{ filteredStudents().length }}
+                            student(s) found
+
+                        </small>
+
+                    </div>
+
+
+                    <div class="records-tools">
+
+                        <button
+                            class="btn btn-outline-secondary btn-sm"
+                            onclick="window.print()"
+                        >
+                            <i class="bi bi-printer me-1"></i>
+                            Print
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TABLE -->
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table align-middle records-table mb-0"
+                    >
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>
+                                    Student
+                                </th>
+
+                                <th>
+                                    Contact
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Year
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Registered
+                                </th>
+
+                                <th class="text-end">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr
+                                ng-repeat="student in filteredStudents() track by student._id"
+                            >
+
+                                <!-- NUMBER -->
+
+                                <td class="text-muted">
+                                    {{ $index + 1 }}
+                                </td>
+
+
+                                <!-- STUDENT -->
+
+                                <td>
+
+                                    <div class="student-info">
+
+                                        <div class="student-avatar">
+                                            {{ student.name.charAt(0).toUpperCase() }}
+                                        </div>
+
+                                        <div>
+
+                                            <div class="student-name">
+                                                {{ student.name }}
+                                            </div>
+
+                                            <div class="student-id">
+                                                {{ student.studentId }}
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- CONTACT -->
+
+                                <td>
+
+                                    <div class="contact-info">
+
+                                        <div>
+                                            <i class="bi bi-envelope me-1"></i>
+                                            {{ student.email }}
+                                        </div>
+
+                                        <div>
+                                            <i class="bi bi-telephone me-1"></i>
+                                            {{ student.phone }}
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- DEPARTMENT -->
+
+                                <td>
+
+                                    <span class="department-badge">
+                                        {{ student.department }}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- YEAR -->
+
+                                <td>
+                                    Year {{ student.year }}
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td>
+
+                                    <span
+                                        class="status-badge"
+                                        ng-class="student.status === 'Active'
+                                            ? 'status-active'
+                                            : 'status-inactive'"
+                                    >
+
+                                        <i
+                                            class="bi"
+                                            ng-class="student.status === 'Active'
+                                                ? 'bi-check-circle-fill'
+                                                : 'bi-dash-circle-fill'"
+                                        ></i>
+
+                                        {{ student.status }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- DATE -->
+
+                                <td>
+                                    {{ formatDisplayDate(student.createdAt) }}
+                                </td>
+
+
+                                <!-- ACTIONS -->
+
+                                <td class="text-end">
+
+                                    <div class="btn-group">
+
+                                        <!-- VIEW -->
+
+                                        <button
+                                            class="btn btn-sm btn-outline-primary"
+                                            title="View Student"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#viewStudentModal"
+                                            ng-click="viewStudent(student)"
+                                        >
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+
+
+                                        <!-- EDIT -->
+
+                                        <button
+                                            class="btn btn-sm btn-outline-warning"
+                                            title="Edit Student"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#studentModal"
+                                            ng-click="editStudent(student)"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+
+                                        <!-- DELETE -->
+
+                                        <button
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Delete Student"
+                                            ng-click="deleteStudent(student)"
+                                        >
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- EMPTY -->
+
+                            <tr
+                                ng-if="filteredStudents().length === 0"
+                            >
+
+                                <td colspan="8">
+
+                                    <div class="records-empty">
+
+                                        <div class="empty-icon">
+
+                                            <i class="bi bi-folder2-open"></i>
+
+                                        </div>
+
+                                        <h5>
+                                            No students found
+                                        </h5>
+
+                                        <p>
+                                            Try changing your search or filter,
+                                            or add a new student.
+                                        </p>
+
+                                        <button
+                                            class="btn btn-primary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#studentModal"
+                                            ng-click="prepareAdd()"
+                                        >
+                                            <i class="bi bi-person-plus me-1"></i>
+                                            Add Student
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="edumate-footer">
+
+        <div class="container-fluid px-4">
+
+            <div class="row align-items-center gy-2">
+
+                <div class="col-md-6 text-center text-md-start">
+
+                    <div class="footer-brand">
+
+                        <i class="bi bi-mortarboard-fill me-2"></i>
+
+                        <strong>
+                            EduMate
+                        </strong>
+
+                    </div>
+
+                    <div class="footer-subtitle">
+                        Student Management System
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6 text-center text-md-end">
+
+                    <div class="footer-copyright">
+                        © 2026 EduMate. All rights reserved.
+                    </div>
+
+                    <div class="footer-version">
+                        Secure Student Administration
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =====================================================
+         ADD / EDIT STUDENT MODAL
+    ====================================================== -->
+
+    <div
+        class="modal fade"
+        id="studentModal"
+        tabindex="-1"
+    >
+
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title">
+
+                            <i
+                                class="bi"
+                                ng-class="editingStudent
+                                    ? 'bi-pencil-square'
+                                    : 'bi-person-plus-fill'"
+                            ></i>
+
+                            {{ editingStudent
+                                ? 'Edit Student'
+                                : 'Register New Student'
+                            }}
+
+                        </h5>
+
+                        <small class="text-muted">
+                            Enter the student's information below.
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
+
+                </div>
+
+
+                <form
+                    name="studentForm"
+                    ng-submit="saveStudent()"
+                    novalidate
+                >
+
+                    <div class="modal-body">
+
+                        <div class="row g-3">
+
+                            <!-- STUDENT ID -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Student ID *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    ng-model="formData.studentId"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- NAME -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Full Name *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    ng-model="formData.name"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- EMAIL -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Email *
+                                </label>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    ng-model="formData.email"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- PHONE -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Phone *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    ng-model="formData.phone"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- DEPARTMENT -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Department *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    ng-model="formData.department"
+                                    placeholder="e.g. Computer Science"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- YEAR -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Year *
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    ng-model="formData.year"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Year
+                                    </option>
+
+                                    <option value="1">
+                                        1st Year
+                                    </option>
+
+                                    <option value="2">
+                                        2nd Year
+                                    </option>
+
+                                    <option value="3">
+                                        3rd Year
+                                    </option>
+
+                                    <option value="4">
+                                        4th Year
+                                    </option>
+
+                                    <option value="5">
+                                        5th Year
+                                    </option>
+
+                                    <option value="6">
+                                        6th Year
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- GENDER -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Gender
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    ng-model="formData.gender"
+                                >
+
+                                    <option value="">
+                                        Select Gender
+                                    </option>
+
+                                    <option value="Male">
+                                        Male
+                                    </option>
+
+                                    <option value="Female">
+                                        Female
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- DOB -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Date of Birth
+                                </label>
+
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    ng-model="formData.dateOfBirth"
+                                >
+
+                            </div>
+
+
+                            <!-- STATUS -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Status
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    ng-model="formData.status"
+                                >
+
+                                    <option value="Active">
+                                        Active
+                                    </option>
+
+                                    <option value="Inactive">
+                                        Inactive
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- ADDRESS -->
+
+                            <div class="col-12">
+
+                                <label class="form-label">
+                                    Address
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    rows="3"
+                                    ng-model="formData.address"
+                                    placeholder="Enter student's address"
+                                ></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            ng-disabled="studentForm.$invalid || saving"
+                        >
+
+                            <span
+                                ng-if="saving"
+                                class="spinner-border spinner-border-sm me-1"
+                            ></span>
+
+                            <i
+                                ng-if="!saving"
+                                class="bi bi-check-lg me-1"
+                            ></i>
+
+                            {{ saving ? 'Saving...' : 'Save Student' }}
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         VIEW STUDENT MODAL
+    ====================================================== -->
+
+    <div
+        class="modal fade"
+        id="viewStudentModal"
+        tabindex="-1"
+    >
+
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title">
+
+                            <i class="bi bi-person-vcard me-2"></i>
+                            Student Details
+
+                        </h5>
+
+                        <small class="text-muted">
+                            Complete student information
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
+
+                </div>
+
+
+                <div
+                    class="modal-body"
+                    ng-if="selectedStudent"
+                >
+
+                    <div class="student-profile">
+
+                        <div class="large-student-avatar">
+
+                            {{ selectedStudent.name.charAt(0).toUpperCase() }}
+
+                        </div>
+
+                        <h4>
+                            {{ selectedStudent.name }}
+                        </h4>
+
+                        <p class="text-muted">
+                            {{ selectedStudent.studentId }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="row g-3 mt-2">
+
+                        <div class="col-md-6">
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Email
+                                </small>
+
+                                <strong>
+                                    {{ selectedStudent.email }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Phone
+                                </small>
+
+                                <strong>
+                                    {{ selectedStudent.phone }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Department
+                                </small>
+
+                                <strong>
+                                    {{ selectedStudent.department }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Year
+                                </small>
+
+                                <strong>
+                                    {{ selectedStudent.year }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Status
+                                </small>
+
+                                <strong>
+                                    {{ selectedStudent.status }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Gender
+                                </small>
+
+                                <strong>
+                                    {{ selectedStudent.gender || 'Not provided' }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Date of Birth
+                                </small>
+
+                                <strong>
+
+                                    {{ selectedStudent.dateOfBirth
+                                        ? formatDisplayDate(selectedStudent.dateOfBirth)
+                                        : 'Not provided' }}
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <div class="detail-box">
+
+                                <small>
+                                    Address
+                                </small>
+
+                                <strong>
+                                    {{ selectedStudent.address || 'Not provided' }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
+                    >
+                        Close
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        class="toast-container position-fixed bottom-0 end-0 p-3"
+    >
+
+        <div
+            id="toastMessage"
+            class="toast"
+            role="alert"
+        >
+
+            <div class="toast-header">
+
+                <i
+                    class="bi bi-check-circle-fill text-success me-2"
+                ></i>
+
+                <strong class="me-auto">
+                    EduMate
+                </strong>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="toast"
+                ></button>
+
+            </div>
+
+            <div class="toast-body">
+                {{ toastMessage }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SCRIPTS
+    ====================================================== -->
+
+    <script
+        src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js">
+    </script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

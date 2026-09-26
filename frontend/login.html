@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="loginApp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EduMate - Login</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+        }
+
+        .login-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .login-brand {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .login-brand-icon {
+            width: 68px;
+            height: 68px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            font-size: 30px;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, .22);
+            margin-bottom: 15px;
+        }
+
+        .login-brand h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 5px;
+        }
+
+        .login-brand p {
+            color: #64748b;
+            margin: 0;
+            font-size: .9rem;
+        }
+
+        .login-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, .08);
+        }
+
+        .login-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 5px;
+        }
+
+        .login-card-subtitle {
+            color: #64748b;
+            font-size: .85rem;
+            margin-bottom: 25px;
+        }
+
+        .login-input-group {
+            position: relative;
+        }
+
+        .login-input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            z-index: 2;
+        }
+
+        .login-input {
+            padding-left: 43px;
+            height: 48px;
+            border-radius: 10px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #64748b;
+            z-index: 3;
+        }
+
+        .login-btn {
+            height: 48px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .login-error {
+            border-radius: 10px;
+            font-size: .85rem;
+        }
+
+        .login-security {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            color: #64748b;
+            font-size: .75rem;
+            margin-top: 20px;
+        }
+
+        .login-security i {
+            color: #16a34a;
+        }
+
+        .demo-box {
+            margin-top: 18px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            font-size: .78rem;
+            color: #64748b;
+        }
+
+        .demo-box strong {
+            color: #334155;
+        }
+
+        @media (max-width: 575px) {
+            .login-wrapper {
+                padding: 25px 15px;
+            }
+
+            .login-card {
+                padding: 24px 20px;
+            }
+
+            .login-brand h1 {
+                font-size: 1.55rem;
+            }
+        }
+    </style>
+</head>
+
+
+<body ng-controller="LoginController">
+
+
+<!-- LOGIN AREA -->
+<div class="login-wrapper">
+
+    <div class="login-container">
+
+        <!-- BRAND -->
+        <div class="login-brand">
+
+            <div class="login-brand-icon">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+
+            <h1>EduMate</h1>
+
+            <p>
+                Student Management System
+            </p>
+
+        </div>
+
+
+        <!-- LOGIN CARD -->
+        <div class="login-card">
+
+            <div class="login-card-title">
+                Welcome back
+            </div>
+
+            <div class="login-card-subtitle">
+                Sign in to access your administration dashboard.
+            </div>
+
+
+            <!-- ERROR -->
+            <div
+                class="alert alert-danger login-error"
+                ng-if="errorMessage"
+            >
+                <i class="bi bi-exclamation-circle me-2"></i>
+                {{ errorMessage }}
+            </div>
+
+
+            <!-- LOGIN FORM -->
+            <form ng-submit="login()">
+
+                <!-- USERNAME -->
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Username
+                    </label>
+
+                    <div class="login-input-group">
+
+                        <i class="bi bi-person login-input-icon"></i>
+
+                        <input
+                            type="text"
+                            class="form-control login-input"
+                            ng-model="username"
+                            placeholder="Enter your username"
+                            autocomplete="username"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Password
+                    </label>
+
+                    <div class="login-input-group">
+
+                        <i class="bi bi-lock login-input-icon"></i>
+
+                        <input
+                            ng-attr-type="{{ showPassword ? 'text' : 'password' }}"
+                            class="form-control login-input"
+                            ng-model="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            ng-click="showPassword = !showPassword"
+                            tabindex="-1"
+                        >
+                            <i
+                                class="bi"
+                                ng-class="showPassword ? 'bi-eye-slash' : 'bi-eye'"
+                            ></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LOGIN BUTTON -->
+                <button
+                    type="submit"
+                    class="btn btn-primary login-btn"
+                    ng-disabled="loading"
+                >
+
+                    <span ng-if="!loading">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Sign In
+                    </span>
+
+                    <span ng-if="loading">
+
+                        <span
+                            class="spinner-border spinner-border-sm me-2"
+                        ></span>
+
+                        Signing in...
+
+                    </span>
+
+                </button>
+
+            </form>
+
+
+            <!-- SECURITY -->
+            <div class="login-security">
+
+                <i class="bi bi-shield-check"></i>
+
+                Secure administrator authentication
+
+            </div>
+
+
+            <!-- DEMO LOGIN -->
+            <div class="demo-box">
+
+                <i class="bi bi-info-circle me-1"></i>
+
+                <strong>Admin account:</strong>
+                admin / Admin@123
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+<footer class="edumate-footer mt-0">
+
+    <div class="container-fluid px-4">
+
+        <div class="row align-items-center gy-2">
+
+            <div class="col-md-6 text-center text-md-start">
+
+                <div class="footer-brand">
+
+                    <i class="bi bi-mortarboard-fill me-2"></i>
+
+                    <strong>EduMate</strong>
+
+                </div>
+
+                <div class="footer-subtitle">
+                    Student Management System
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6 text-center text-md-end">
+
+                <div class="footer-copyright">
+                    © 2026 EduMate. All rights reserved.
+                </div>
+
+                <div class="footer-version">
+                    Secure Student Administration
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- ANGULARJS -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+
+
+<script>
+
+const loginApp = angular.module("loginApp", []);
+
+
+loginApp.controller("LoginController", function($scope, $http) {
+
+    $scope.username = "";
+    $scope.password = "";
+
+    $scope.showPassword = false;
+    $scope.loading = false;
+    $scope.errorMessage = "";
+
+
+    $scope.login = function() {
+
+        $scope.errorMessage = "";
+        $scope.loading = true;
+
+
+        $http.post(
+            "http://localhost:5000/api/auth/login",
+            {
+                username: $scope.username,
+                password: $scope.password
+            }
+        )
+        .then(function(response) {
+
+            localStorage.setItem(
+                "studentHubToken",
+                response.data.token
+            );
+
+            localStorage.setItem(
+                "studentHubUser",
+                JSON.stringify(response.data.user)
+            );
+
+
+            window.location.href = "index.html";
+
+        })
+        .catch(function(error) {
+
+            $scope.errorMessage =
+                error.data?.message ||
+                "Login failed. Please check your username and password.";
+
+        })
+        .finally(function() {
+
+            $scope.loading = false;
+
+        });
+
+    };
+
+});
+
+</script>
+
+</body>
+</html>
