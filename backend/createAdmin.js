@@ -7,47 +7,40 @@ const User = require("./models/User");
 dotenv.config();
 
 async function createAdmin() {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
 
-    const username = "admin";
-    const password = "Admin@123";
+        const username = "pranesh19";
+        const password = "thanipranesh@1901";
 
-    const existingUser = await User.findOne({ username });
+        const existingAdmin = await User.findOne({ role: "admin" });
 
-    if (existingUser) {
-      existingUser.name = "College Administrator";
-      existingUser.role = "admin";
+        if (existingAdmin) {
+            existingAdmin.username = username;
+            existingAdmin.password = await bcrypt.hash(password, 12);
 
-      await existingUser.save();
+            await existingAdmin.save();
 
-      console.log("Existing admin account updated successfully.");
-      console.log("Username:", username);
+            console.log("Admin credentials updated successfully.");
+        } else {
+            const hashedPassword = await bcrypt.hash(password, 12);
 
-      await mongoose.disconnect();
-      process.exit(0);
+            await User.create({
+                name: "EduMate Administrator",
+                username: username,
+                password: hashedPassword,
+                role: "admin"
+            });
+
+            console.log("Admin account created successfully.");
+        }
+
+        await mongoose.disconnect();
+
+    } catch (error) {
+        console.error("Error:", error.message);
+        process.exit(1);
     }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    await User.create({
-      name: "College Administrator",
-      username: username,
-      password: hashedPassword,
-      role: "admin"
-    });
-
-    console.log("Admin account created successfully.");
-    console.log("Username:", username);
-    console.log("Password:", password);
-
-    await mongoose.disconnect();
-    process.exit(0);
-
-  } catch (error) {
-    console.error("Failed to create/update admin:", error);
-    process.exit(1);
-  }
 }
 
 createAdmin();
